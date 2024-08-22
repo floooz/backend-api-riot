@@ -96,18 +96,35 @@ app.get('/api/rank/:username/:tag', async (req, res) => {
       headers: { 'X-Riot-Token': process.env.RIOT_API_KEY }
     });
     const info_summ = await axios.get(`https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${info_account.data.puuid}`, {
-          headers: { 'X-Riot-Token': process.env.RIOT_API_KEY }
-        });
+      headers: { 'X-Riot-Token': process.env.RIOT_API_KEY }
+    });
     const rank_summ = await axios.get(`https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/${info_summ.data.id}`, {
       headers: { 'X-Riot-Token': process.env.RIOT_API_KEY }
     });
-    res.json(rank_summ.data[2]); // Retourne en json le rank en soloQ du joueur
 
+    for (let i = 0; i < rank_summ.data.length; i++) {
+      if (rank_summ.data[i].queueType === "RANKED_SOLO_5x5") {
+        res.json(rank_summ.data[i]);
+        return;
+      }
+    }
+    
   } catch (error) {
-    res.status(error.response.status).json({ error: error.message });
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      res.status(error.response.status).json({ error: error.message });
+    } else if (error.request) {
+      // The request was made but no response was received
+      res.status(500).json({ error: "No response received from the server." });
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      res.status(500).json({ error: error.message });
+    }
   }
-
 });
+
+
 
 
 
