@@ -88,6 +88,29 @@ app.get('/api/champion-mastery/:puuid/:championId', async (req, res) => {
   }
 });
 
+// Route pour récupérer le rank d'un joueur
+app.get('/api/rank/:username/:tag', async (req, res) => {
+  const { username, tag } = req.params;
+  try {
+    const info_account = await axios.get(`https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${username}/${tag}`, {
+      headers: { 'X-Riot-Token': process.env.RIOT_API_KEY }
+    });
+    const info_summ = await axios.get(`https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${info_account.data.puuid}`, {
+          headers: { 'X-Riot-Token': process.env.RIOT_API_KEY }
+        });
+    const rank_summ = await axios.get(`https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/${info_summ.data.id}`, {
+      headers: { 'X-Riot-Token': process.env.RIOT_API_KEY }
+    });
+    res.json(rank_summ.data[2]); // Retourne en json le rank en soloQ du joueur
+
+  } catch (error) {
+    res.status(error.response.status).json({ error: error.message });
+  }
+
+});
+
+
+
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
