@@ -106,10 +106,9 @@ app.get('/api/rank/:username/:tag', async (req, res) => {
       if (rank_summ.data[i].queueType === "RANKED_SOLO_5x5") {
         res.json(rank_summ.data[i]);
         return;
-      } else {
-        res.json({ error: "No ranked solo queue found." });
       }
     }
+    res.json({ message: "No ranked soloQ data found." });
     
   } catch (error) {
     if (error.response) {
