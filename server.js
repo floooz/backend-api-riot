@@ -125,7 +125,44 @@ app.get('/api/rank/:username/:tag', async (req, res) => {
   }
 });
 
+let calcul = "";
+function generateProblem() {
+  const operations = ['+', '-', '*', '/', '^'];
+  const randomOperation = operations[Math.floor(Math.random() * operations.length)];
+  let num1, num2;
 
+  const getRandomDecimal = (min, max) => {
+      return parseFloat((Math.random() * (max - min) + min).toFixed(1)); // Une seule décimale
+  };
+
+  const getRandomInteger = (min, max) => {
+      return Math.floor(Math.random() * (max - min + 1)) + min; // Nombres entiers
+  };
+
+  if (randomOperation === '*') {
+      num1 = getRandomInteger(0, 20); // Multiplication : uniquement des entiers
+      num2 = getRandomInteger(0, 20);
+  } else if (randomOperation === '/') {
+      num2 = getRandomInteger(1, 30); // Division : éviter division par zéro, uniquement des entiers
+      num1 = num2 * getRandomInteger(1, 30); // Garantir des résultats exacts
+  } else if (randomOperation === '^') {
+      num1 = getRandomInteger(0, 10); // Puissances : bases entières
+      num2 = getRandomInteger(1, 3);  // Exposants entiers
+  } else {
+      num1 = getRandomDecimal(0, 100); // Addition et soustraction : nombres avec une décimale
+      num2 = getRandomDecimal(0, 100);
+  }
+
+  calcul = `${num1} ${randomOperation} ${num2}`;
+
+  // console.log(calcul);
+}
+
+// Route pour avoir le calcul aléatoire à résoudre
+app.get('/api/calcul', (req, res) => {
+  generateProblem();
+  res.json({ calcul });
+});
 
 
 
